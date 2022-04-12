@@ -26,5 +26,5 @@ while True:
                 print(res.rtt_avg_ms,end=" ")
                 print(res.packet_loss)
     if __name__ == "__main__":
-        main()
+        auto()
                    
