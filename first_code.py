@@ -1,4 +1,3 @@
-from pip import main
 from pythonping import ping
 
 with open ("E:\Python code\log.txt","r")as f:
