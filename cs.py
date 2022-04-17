@@ -10,7 +10,7 @@ Up_RE = r'Node up'
 
 
 #Open the Ip text file for Ping test.
-with open("ipaddress.txt") as f:
+with open("whatsappauto-main/ipaddress.txt") as f:
     device_ip = f.read().splitlines()
 #Run the ping command through Module Pythoping (Where the Up and Down 
 def ping_status(x):
@@ -20,48 +20,87 @@ def ping_status(x):
     else:
         return(f"{x} Node up")
 
-def log_collect(output=None):
-#If The nodes  are  down then add into txt file = down_networkinfo.txt file. 
+def down_log_collect(output=None):
     for line in output.split("\n"):
-        k = re.findall(Down_RE, line)
-#If Host are already insert into the file then pass the node details.      
+        k = re.findall(Down_RE, line)    
         if k:
-            data= open("down_networkinfo.txt")
+            data= open("whatsappauto-main/down_networkinfo.txt")
             for serach in data:
                 if line in serach:
+                    
                     break
-#If the Host data  not insert in the txt file then insert .                
             else:
-                data= open("down_networkinfo.txt","a")
+                data= open("whatsappauto-main/down_networkinfo.txt","a")
                 print(line,datetime.datetime.now(),file=data)
-        else:
-            data= open("up_networkinfo.txt")
+                
+
+def up_log_collect(output=None):
+    for line in output.split("\n"):
+        k = re.findall(Up_RE, line)   
+        if k:
+            data= open("whatsappauto-main/networkinfo.txt")
             for serach in data:
-                if line in serach:
+                if line in serach:  
                     break
             else:
-                data= open("up_networkinfo.txt","a")
+                data= open("whatsappauto-main/networkinfo.txt","a")
                 print(line,datetime.datetime.now(),file=data)
-#Counting the Down host 
+
+def remove_if_not_up(output=None):
+    down=  open("whatsappauto-main/networkinfo.txt","r+")
+    down_data = down.readlines()
+    for line in output.split("\n"):
+        down.seek(0)
+        for i in down_data:
+            if not (line.startswith(line)):
+                down.write(i)             
+        down.truncate()
+
+
+def remove_if_not_down(output=None):
+    up= open("whatsappauto-main/down_networkinfo.txt","r+")
+    up_data = up.readlines()
+    for line in output.split("\n"):
+        up.seek(0)
+        for i in up_data:
+            if not (line.startswith(line)):
+                up.write(i)        
+        up.truncate()
+
 def down_host():
-    with open ("down_networkinfo.txt")as f:
+    with open ("whatsappauto-main\down_networkinfo.txt")as f:
         read = len(f.readlines())
         return  read
 #Counting the Uphost        
 def up_host():
-    with open ("up_networkinfo.txt")as f:
+    with open ("whatsappauto-main/networkinfo.txt")as f:
         read = len(f.readlines())
         return  read 
 #Main function Run all the other function    
 def main():
-    for ip in device_ip:
-        ips=ip
-        ping_start = ping_status(ips)
-        log = log_collect(output=ping_start)
-        Down_node = down_host()
-        Up_node = up_host()
-    print("Up host:"+ str(Up_node))
-    print("Down host:"+ str(Down_node)) 
+    while True:
+
+        for ip in device_ip:
+            ips=ip
+            ping_start = ping_status(ips)
+            if  "Node up" in ping_start:
+                updata = ping_start
+                up_log = up_log_collect(output=ping_start)         
+            else:
+                downdata = ping_start
+                down_log = down_log_collect(output=ping_start)
+        
+            Down_node = down_host()
+            Up_node = up_host()
+        print("Up host:"+ str(Up_node))
+        print("Down host:"+ str(Down_node))
+        send_log_down = remove_if_not_up(output=downdata)
+        send1_log_up = remove_if_not_down(output=updata)
+        time.sleep(4) 
+
+
+
 if __name__ == "__main__":
      main()
+
 
