@@ -1,0 +1,2 @@
+172.31.12.9 Node down
+172.31.8.38 Node down
